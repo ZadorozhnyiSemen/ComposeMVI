@@ -12,12 +12,6 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-
 rootProject.name = "ComposeMVI"
-
-apply from: "$rootDir/modules.gradle"
-
-modulez.forEach { name, path ->
-    include(name)
-    project(name).projectDir = file(path)
-}
+include ':app'
+include ':mvi'
