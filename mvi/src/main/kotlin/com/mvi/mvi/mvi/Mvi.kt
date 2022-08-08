@@ -47,7 +47,7 @@ abstract class Mvi<S : State, I : Intent, E : SingleEvent> : ViewModel() {
 
 	protected abstract suspend fun performSideEffects(intent: I, state: S): I?
 
-	fun triggerSingleEvent(singleEvent: E) {
+	protected fun triggerSingleEvent(singleEvent: E) {
 		viewModelScope.launch { _singleEvent.emit(singleEvent) }
 	}
 
@@ -60,7 +60,7 @@ abstract class Mvi<S : State, I : Intent, E : SingleEvent> : ViewModel() {
 		setState { newState }
 	}
 
-	fun observeFlow(
+	protected fun observeFlow(
 		taskTriggerIntent: I,
 		isUnique: Boolean = true,
 		taskStartedByIntent: suspend () -> Unit
