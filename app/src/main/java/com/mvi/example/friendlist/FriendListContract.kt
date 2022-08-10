@@ -10,12 +10,6 @@ internal data class FriendListState(
 	val friendList: List<Friend> = listOf(),
 ): State
 
-internal sealed interface SealedFriendListState : State {
-	object Idle : SealedFriendListState
-	object Loading : SealedFriendListState
-	data class FriendList(val friends: List<Friend>) : SealedFriendListState
-}
-
 internal sealed interface FriendListIntent : Intent {
 	object LoadFriends : FriendListIntent
 	data class ShowFriends(val friendList: List<Friend>) : FriendListIntent
