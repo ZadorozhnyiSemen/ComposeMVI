@@ -6,7 +6,7 @@ import com.mvi.mvi.contract.State
 
 internal data class TimerState(
     val timeLeft: Int = 0,
-	 val completed: Boolean = false,
+	val completed: Boolean = false,
 ): State
 
 internal sealed interface TimerIntent : Intent {
