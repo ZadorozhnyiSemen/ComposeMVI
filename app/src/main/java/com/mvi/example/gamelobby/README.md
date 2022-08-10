@@ -1,9 +1,13 @@
-# Friend list application
+# Game lobby application
 
 Demonstration of MVI library usage
 
-Has simple (contract)[FriendListContract.kt] 
-Shows button to load friends and loader while
-list of friend is being loaded.
+Screen simulates creation of an online game lobby.
+You can Start lobby by pressing "Create lobby" button.
 
-For more information on implementation see article's (Part 3)[]
+After that players will fill the lobby in short period of time. 
+You as a host can kick any player except yourself.
+When lobby is full you can start a game.
+
+While having pretty easy [contract](presentation/GameLobbyContract.kt)
+all the UI updates are handled by reducer function in [MVI](presentation/GameLobbyMvi.kt)

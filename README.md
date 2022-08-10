@@ -1,7 +1,6 @@
 # Compose MVI implementation and samples
 
-## This project is a code reference for article (article link) about simple MVI pattern. 
-## Read along and check project code.
+## This project is a code reference for article (article link) about simple MVI pattern implementation.
 
 ### Navigation
 - [Core MVI library code](mvi/src/main/kotlin/com/mvi/mvi)

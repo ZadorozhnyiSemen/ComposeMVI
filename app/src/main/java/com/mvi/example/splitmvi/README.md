@@ -1,9 +1,8 @@
-# Friend list application
+# Split MVI application
 
 Demonstration of MVI library usage
 
-Has simple (contract)[FriendListContract.kt] 
-Shows button to load friends and loader while
-list of friend is being loaded.
+Has two independent MVI Screens in a single screen
+Both MVI have it's own contracts [AdsContract](presentation/ads/AdsContract.kt) and [ArticleListContract](presentation/list/ArticleListContract.kt)
 
-For more information on implementation see article's (Part 3)[]
+Showcase of situation, when independent components may implement it's own contract and be reused in any place needed.

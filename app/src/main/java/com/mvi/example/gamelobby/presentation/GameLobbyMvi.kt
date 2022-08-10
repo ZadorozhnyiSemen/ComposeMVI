@@ -16,7 +16,9 @@ internal class GameLobbyMvi(
         is GameLobbyIntent.StartPlayerSearch -> GameLobbyState.GameLobby()
         is GameLobbyIntent.AddPlayerToLobby -> {
             require(prevState is GameLobbyState.GameLobby) { "Exception" }
-            if (prevState.lobby.isFull()) prevState else {
+            if (prevState.lobby.isFull()) {
+                prevState
+            } else {
                 val updatedLobby = prevState.lobby.addPlayer(player = intent.player)
                 prevState.copy(
                     lobby = updatedLobby,
