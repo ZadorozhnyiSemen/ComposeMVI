@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.onEach
 @Composable
 internal fun ArticleListScreenHolder(
     modifier: Modifier = Modifier,
-    mvi: ArticleListMvi = viewModel()
+    mvi: ArticleListMviProcessor = viewModel()
 ) {
     val context = LocalContext.current
 

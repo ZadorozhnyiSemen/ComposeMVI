@@ -21,7 +21,7 @@ import com.mvi.example.ui.theme.ComposeMVITheme
 @Composable
 internal fun AdsScreenHolder(
     modifier: Modifier = Modifier,
-    mvi: AdsMvi = viewModel()
+    mvi: AdsMviProcessor = viewModel()
 ) {
     val state by mvi.viewState.collectAsStateWithLifecycle()
 

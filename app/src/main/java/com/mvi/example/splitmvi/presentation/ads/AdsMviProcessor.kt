@@ -1,11 +1,15 @@
 package com.mvi.example.splitmvi.presentation.ads
 
 import com.mvi.example.splitmvi.domain.usecases.GetAdsFlowUseCase
-import com.mvi.mvi.mvi.Mvi
+import com.mvi.mvi.mvi.MviProcessor
 
-internal class AdsMvi(
+private const val AdsSwitchingTaskId = "ads task"
+
+internal class AdsMviProcessor(
     private val getAdsFlowUseCase: GetAdsFlowUseCase = GetAdsFlowUseCase(),
-) : Mvi<AdsState, AdsIntent, AdsSingleEvent>() {
+) : MviProcessor<AdsState, AdsIntent, AdsSingleEvent>() {
+
+    override val reducer: Reducer<AdsState, AdsIntent> = AdsReducer()
 
     init {
         sendIntent(AdsIntent.LoadAds)
@@ -13,20 +17,12 @@ internal class AdsMvi(
 
     override fun initialState() = AdsState()
 
-    override fun reduce(
-        intent: AdsIntent,
-        prevState: AdsState
-    ): AdsState = when(intent) {
-        AdsIntent.LoadAds -> prevState
-        is AdsIntent.UpdateAd -> prevState.copy(currentAd = intent.newAdvertisement)
-    }
-
-    override suspend fun performSideEffects(
+    override suspend fun handleIntent(
         intent: AdsIntent,
         state: AdsState
     ): AdsIntent? = when (intent) {
         AdsIntent.LoadAds -> {
-            observeFlow(intent) {
+            observeFlow(AdsSwitchingTaskId) {
                 getAdsFlowUseCase()
                     .collect {
                         sendIntent(AdsIntent.UpdateAd(it))
@@ -35,5 +31,12 @@ internal class AdsMvi(
             null
         }
         is AdsIntent.UpdateAd -> null
+    }
+}
+
+internal class AdsReducer : MviProcessor.Reducer<AdsState, AdsIntent> {
+    override fun reduce(state: AdsState, intent: AdsIntent): AdsState = when(intent) {
+        AdsIntent.LoadAds -> state
+        is AdsIntent.UpdateAd -> state.copy(currentAd = intent.newAdvertisement)
     }
 }

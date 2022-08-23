@@ -1,14 +1,13 @@
 package com.mvi.example.timer
 
-import com.mvi.mvi.mvi.Mvi
+import com.mvi.mvi.mvi.MviProcessor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.*
 
-internal class TimerMvi constructor() : Mvi<
+private const val TimerTaskId = "Timer task"
+
+internal class TimerMviProcessor constructor() : MviProcessor<
 	TimerState,
 	TimerIntent,
 	TimerSingleEvent
@@ -20,12 +19,10 @@ internal class TimerMvi constructor() : Mvi<
 
 	override fun initialState(): TimerState = TimerState()
 
-	override fun reduce(
-		intent: TimerIntent,
-		prevState: TimerState
-	): TimerState = timerScreenReducer(intent, prevState)
+	override val reducer: Reducer<TimerState, TimerIntent>
+		get() = TimerScreenReducer()
 
-	override suspend fun performSideEffects(
+	override suspend fun handleIntent(
 		intent: TimerIntent,
 		state: TimerState
 	): TimerIntent?
@@ -36,10 +33,10 @@ internal class TimerMvi constructor() : Mvi<
 	}
 }
 
-internal fun TimerMvi.handleStartTimer(
+internal fun TimerMviProcessor.handleStartTimer(
 	intent: TimerIntent.StartTimer,
 ): TimerIntent? {
-	observeFlow(intent) {
+	observeFlow(TimerTaskId) {
 		observeSecondTick(intent.from)
 			.onCompletion { sendIntent(TimerIntent.TimeIsUp) }
 			.collect { timerValue ->
@@ -49,7 +46,7 @@ internal fun TimerMvi.handleStartTimer(
 	return null
 }
 
-internal fun TimerMvi.handleTimeIsUp(): TimerIntent? {
+internal fun TimerMviProcessor.handleTimeIsUp(): TimerIntent? {
 	triggerSingleEvent(TimerSingleEvent.ShowNotification)
 	return null
 }

@@ -1,13 +1,14 @@
 package com.mvi.example.splitmvi.presentation.list
 
-import com.mvi.example.splitmvi.domain.usecases.GetArticleUseCase
 import com.mvi.example.splitmvi.domain.usecases.LoadArticlesUseCase
-import com.mvi.mvi.mvi.Mvi
+import com.mvi.mvi.mvi.MviProcessor
 
-internal class ArticleListMvi(
+internal class ArticleListMviProcessor(
     private val loadArticlesUseCase: LoadArticlesUseCase = LoadArticlesUseCase(),
-    private val getArticleUseCase: GetArticleUseCase = GetArticleUseCase(),
-) : Mvi<ArticleListState, ArticleListIntent, ArticleListSingleEvent>() {
+) : MviProcessor<ArticleListState, ArticleListIntent, ArticleListSingleEvent>() {
+
+    override val reducer: Reducer<ArticleListState, ArticleListIntent>
+        get() = ArticleListReducer()
 
     init {
         sendIntent(ArticleListIntent.LoadArticles)
@@ -15,16 +16,7 @@ internal class ArticleListMvi(
 
     override fun initialState(): ArticleListState = ArticleListState.LoadingArticles
 
-    override fun reduce(
-        intent: ArticleListIntent,
-        prevState: ArticleListState
-    ): ArticleListState = when (intent) {
-        ArticleListIntent.LoadArticles -> prevState
-        is ArticleListIntent.OpenArticle -> prevState
-        is ArticleListIntent.ShowArticles -> ArticleListState.ArticleList(intent.articleList)
-    }
-
-    override suspend fun performSideEffects(
+    override suspend fun handleIntent(
         intent: ArticleListIntent,
         state: ArticleListState
     ): ArticleListIntent? = when (intent) {
@@ -38,5 +30,15 @@ internal class ArticleListMvi(
             null
         }
     }
+}
 
+internal class ArticleListReducer : MviProcessor.Reducer<ArticleListState, ArticleListIntent> {
+    override fun reduce(
+        state: ArticleListState,
+        intent: ArticleListIntent
+    ): ArticleListState = when (intent) {
+        ArticleListIntent.LoadArticles -> state
+        is ArticleListIntent.OpenArticle -> state
+        is ArticleListIntent.ShowArticles -> ArticleListState.ArticleList(intent.articleList)
+    }
 }

@@ -7,15 +7,13 @@ import com.mvi.mvi.contract.Intent
 import com.mvi.mvi.contract.SingleEvent
 import com.mvi.mvi.contract.State
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-abstract class Mvi<S : State, I : Intent, E : SingleEvent> : ViewModel() {
+abstract class MviProcessor<S : State, I : Intent, E : SingleEvent> : ViewModel() {
 
 
 	private val initialState: S by lazy { initialState() }
@@ -30,7 +28,9 @@ abstract class Mvi<S : State, I : Intent, E : SingleEvent> : ViewModel() {
 	private val _singleEvent: MutableSharedFlow<E> = MutableSharedFlow()
 	val singleEvent: Flow<E> = _singleEvent
 
-	private val longRunningJobs: HashMap<I, Job> = hashMapOf()
+	protected abstract val reducer: Reducer<S, I>
+
+	private val longRunningJobs: HashMap<String, Job> = hashMapOf()
 
 	init {
 		subscribeToIntents()
@@ -43,11 +43,9 @@ abstract class Mvi<S : State, I : Intent, E : SingleEvent> : ViewModel() {
 		}
 	}
 
-	protected abstract fun reduce(intent: I, prevState: S): S
+	protected abstract suspend fun handleIntent(intent: I, state: S): I?
 
-	protected abstract suspend fun performSideEffects(intent: I, state: S): I?
-
-	protected fun triggerSingleEvent(singleEvent: E) {
+	fun triggerSingleEvent(singleEvent: E) {
 		viewModelScope.launch { _singleEvent.emit(singleEvent) }
 	}
 
@@ -55,41 +53,51 @@ abstract class Mvi<S : State, I : Intent, E : SingleEvent> : ViewModel() {
 		_viewState.value = viewState.value.newState()
 	}
 
-	private fun reduceInternal(intent: I, prevState: S) {
-		val newState = reduce(intent, prevState)
+	private fun reduceInternal(prevState: S, intent: I) {
+		val newState = reducer.reduce(prevState, intent)
 		setState { newState }
 	}
 
-	protected fun observeFlow(
-		taskTriggerIntent: I,
+	fun observeFlow(
+		taskId: String,
 		isUnique: Boolean = true,
 		taskStartedByIntent: suspend () -> Unit
 	) {
 		when {
-			taskTriggerIntent in longRunningJobs.keys &&
-				!(longRunningJobs[taskTriggerIntent]?.isCompleted ?: true) &&
+			taskId in longRunningJobs.keys &&
+				!(longRunningJobs[taskId]?.isCompleted ?: true) &&
 				isUnique -> {
 				Log.d("CoroutinesViewModel", "Job for intent already working.. Skip execution")
 				return
 			}
 			!isUnique -> {
-				if (taskTriggerIntent in longRunningJobs.keys) longRunningJobs[taskTriggerIntent]?.cancel()
+				if (taskId in longRunningJobs.keys) longRunningJobs[taskId]?.cancel()
 			}
 		}
 		val task = viewModelScope.launch {
 			taskStartedByIntent()
 		}
-		longRunningJobs[taskTriggerIntent] = task
+		longRunningJobs[taskId] = task
+	}
+
+	fun cancelFlow(taskId: String) {
+		if (taskId in longRunningJobs.keys && longRunningJobs[taskId]?.isActive == true) {
+			longRunningJobs[taskId]?.cancel()
+		}
 	}
 
 	private fun subscribeToIntents() {
 		viewModelScope.launch {
 			_intent.collect {
-				reduceInternal(it, _viewState.value)
+				reduceInternal(_viewState.value, it)
 				launch {
-					performSideEffects(it, _viewState.value)?.let { newIntent -> sendIntent(newIntent) }
+					handleIntent(it, _viewState.value)?.let { newIntent -> sendIntent(newIntent) }
 				}
 			}
 		}
+	}
+
+	interface Reducer<S, I> {
+		fun reduce(state: S, intent: I): S
 	}
 }

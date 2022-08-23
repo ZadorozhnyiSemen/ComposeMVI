@@ -1,12 +1,17 @@
 package com.mvi.example.timer
 
-internal fun timerScreenReducer(
-    intent: TimerIntent,
-    prevState: TimerState
-) = when (intent) {
-    is TimerIntent.StartTimer -> prevState
-    TimerIntent.TimeIsUp -> prevState.copy(completed = true)
-    is TimerIntent.UpdateTimer -> {
-        prevState.copy(timeLeft = intent.newTime)
+import com.mvi.mvi.mvi.MviProcessor
+
+internal class TimerScreenReducer : MviProcessor.Reducer<TimerState, TimerIntent> {
+
+    override fun reduce(state: TimerState, intent: TimerIntent): TimerState = when (intent) {
+        is TimerIntent.StartTimer -> state
+        TimerIntent.TimeIsUp -> {
+            mapOf("Test" to 1, "" to 2)
+            state.copy(completed = true)
+        }
+        is TimerIntent.UpdateTimer -> {
+            state.copy(timeLeft = intent.newTime)
+        }
     }
 }

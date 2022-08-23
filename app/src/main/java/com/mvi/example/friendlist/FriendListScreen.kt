@@ -18,7 +18,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 internal fun FriendListScreenHolder(
-	mvi: FriendListMvi = viewModel()
+	mvi: FriendListMviProcessor = viewModel()
 ) {
 
 	val state by mvi.viewState.collectAsStateWithLifecycle()

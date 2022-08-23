@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.onEach
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 internal fun GameLobbyScreenHolder(
-    mvi: GameLobbyMvi = viewModel()
+    mvi: GameLobbyMviProcessor = viewModel()
 ) {
     val scaffoldState = rememberScaffoldState()
 
@@ -120,6 +120,9 @@ private fun GameLobbyComponent(
                         Text(text = "Start game", textAlign = TextAlign.Center)
                     }
                 } else {
+                    MaterialTheme() {
+                        
+                    }
                     Box(modifier = Modifier
                         .fillMaxWidth()
                         .height(84.dp)) {
