@@ -49,7 +49,7 @@ private fun FriendListScreen(
 			)
 		}
 
-		if (state.isLoadingButtonVisible) {
+		if (state.canLoad) {
 			Button(
 				modifier = Modifier.align(Alignment.Center),
 				onClick = onStarted,

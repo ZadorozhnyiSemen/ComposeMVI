@@ -16,26 +16,6 @@ internal class FriendListMviProcessor constructor() : MviProcessor<
 
 	override fun initialState(): FriendListState = FriendListState()
 
-//	override fun reduce(
-//		intent: FriendListIntent,
-//		prevState: FriendListState
-//	): FriendListState = when (intent) {
-//		FriendListIntent.LoadFriends -> {
-//			prevState.copy(
-//				isLoadingButtonVisible = false,
-//				isLoading = true,
-//				friendList = listOf(),
-//			)
-//		}
-//		is FriendListIntent.ShowFriends -> {
-//			prevState.copy(
-//				isLoadingButtonVisible = intent.friendList.isEmpty(),
-//				isLoading = false,
-//				friendList = intent.friendList,
-//			)
-//		}
-//	}
-
 	override suspend fun handleIntent(
 		intent: FriendListIntent,
 		state: FriendListState
@@ -59,17 +39,20 @@ internal class FriendListMviProcessor constructor() : MviProcessor<
 }
 
 internal class FriendListReducer : MviProcessor.Reducer<FriendListState, FriendListIntent> {
-	override fun reduce(state: FriendListState, intent: FriendListIntent): FriendListState = when (intent) {
+	override fun reduce(
+		state: FriendListState,
+		intent: FriendListIntent
+	): FriendListState = when (intent) {
 		FriendListIntent.LoadFriends -> {
 			state.copy(
-				isLoadingButtonVisible = false,
+				canLoad = false,
 				isLoading = true,
 				friendList = listOf(),
 			)
 		}
 		is FriendListIntent.ShowFriends -> {
 			state.copy(
-				isLoadingButtonVisible = intent.friendList.isEmpty(),
+				canLoad = intent.friendList.isEmpty(),
 				isLoading = false,
 				friendList = intent.friendList,
 			)
