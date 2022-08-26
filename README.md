@@ -1,6 +1,6 @@
 # Compose MVI implementation and samples
 
-## This project is a code reference for article https://medium.com/@szadorozhnyi/mvi-for-compose-part-1 about simple MVI pattern implementation.
+## This project is a code reference for [article](https://szadorozhnyi.medium.com/mvi-for-compose-part-1-ece0654bc25) about simple MVI pattern implementation.
 
 ### Navigation
 - [Core MVI library code](mvi/src/main/kotlin/com/mvi/mvi)
